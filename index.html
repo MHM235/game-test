@@ -138,7 +138,8 @@
       font-size: 12px;
       color: #666;
     }
-    #qrImage {
+    #qrImage,
+    #qrCanvas {
       width: 140px;
       height: 140px;
       border-radius: 8px;
@@ -293,7 +294,8 @@
           <button id="copyLinkBtn">نسخ</button>
         </div>
         <div class="share-row" style="justify-content:center;">
-          <img id="qrImage" alt="QR" />
+          <canvas id="qrCanvas" aria-label="QR"></canvas>
+          <img id="qrImage" alt="QR" style="display:none;" />
         </div>
         <div id="shareNote" class="share-note"></div>
       </div>
@@ -349,6 +351,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
   <script>
     // قاعدة الأسئلة (نفس الفئات اللي صممناها للملتي بلاير)
     const questionBank = {
@@ -439,6 +442,7 @@
 
     const shareLinkInput = document.getElementById("shareLink");
     const qrImage = document.getElementById("qrImage");
+    const qrCanvas = document.getElementById("qrCanvas");
     const shareNote = document.getElementById("shareNote");
     const copyLinkBtn = document.getElementById("copyLinkBtn");
 
@@ -558,8 +562,21 @@
       } else {
         shareNote.textContent = "ارسل الرابط أو امسح الباركود للمشاركة.";
       }
-      const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=" + encodeURIComponent(link || " ");
-      qrImage.src = qrUrl;
+      if (window.QRious && qrCanvas) {
+        qrImage.style.display = "none";
+        qrCanvas.style.display = "block";
+        new QRious({
+          element: qrCanvas,
+          value: link || " ",
+          size: 140,
+          level: "M"
+        });
+      } else {
+        qrCanvas.style.display = "none";
+        qrImage.style.display = "block";
+        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=" + encodeURIComponent(link || " ");
+        qrImage.src = qrUrl;
+      }
     }
 
     copyLinkBtn.addEventListener("click", async () => {
